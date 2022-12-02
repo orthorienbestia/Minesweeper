@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 public class BoardHandler : MonoBehaviour
 {
-    [SerializeField] Camera _camera;
 
-    [SerializeField] Vector2Int gridSize;
+    [SerializeField] int gridSize;
     public Transform boardParent;
 
     private float _maxGridSize = 11.52f;
@@ -14,7 +13,7 @@ public class BoardHandler : MonoBehaviour
 
     private void Awake()
     {
-        _maxGridSize = _camera.orthographicSize * 2;
+
     }
 
     private void Start()
@@ -25,25 +24,28 @@ public class BoardHandler : MonoBehaviour
     [ContextMenu("Create Grid")]
     void CreateGrid()
     {
-        Debug.Log("Create Grid");
-        _maxGridSize = 11.52f;
+        Debug.Log("Creating Grid");
+        var sizeOffset = 1.75f;
+        var topMargin = 0.5f;
+        _maxGridSize = (FindObjectOfType<Camera>().orthographicSize * 2) - sizeOffset;
+
+
         DestroyGrid();
         Debug.Log($"Max grid size: {_maxGridSize}");
-        float cellSize = _maxGridSize / gridSize.x;
-        float startYPos = -(_maxGridSize / 2) + (cellSize / 2);
+        float cellSize = _maxGridSize / gridSize;
+        float startYPos = -(_maxGridSize / 2) + (cellSize / 2) - topMargin;
         float startXPos = -(_maxGridSize / 2) + (cellSize / 2);
 
-        for (int row = 0; row < gridSize.x; row++)
+        for (int row = 0; row < gridSize; row++)
         {
-            for (var col = 0; col < gridSize.x; col++)
+            for (var col = 0; col < gridSize; col++)
             {
                 var cell = Instantiate(_cellPrefab).transform;
                 cell.parent = boardParent;
                 cell.localScale = Vector2.one * (cellSize);
 
-                cell.localPosition = new Vector2(startYPos + col * cellSize, startYPos + row * cellSize);
+                cell.localPosition = new Vector2(startXPos + col * cellSize, startYPos + row * cellSize);
             }
-
         }
     }
 
@@ -51,7 +53,6 @@ public class BoardHandler : MonoBehaviour
     {
         while (boardParent.childCount > 0)
         {
-            Debug.Log(boardParent.childCount);
             DestroyImmediate(boardParent.GetChild(0).gameObject);
         }
 
